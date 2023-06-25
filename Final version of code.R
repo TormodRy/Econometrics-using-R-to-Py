@@ -175,7 +175,7 @@ estimate_fixed_effects_model(bf2017)
 # show the regression result using a summary function instead
 
 # f??rste plt
-def test(bf2017):
+def estim_incr_bf(bf2017):
     subset_bf2017 = bf2017.loc[bf2017['year'] <= 2011, ['log_GJSI', 'F3_D_PBD_incr', 'F2_D_PBD_incr', 'F1_D_PBD_incr', 'D_PBD_incr', 'L1_D_PBD_incr', 'L2_D_PBD_incr', 'L3_D_PBD_incr', 'L4_D_PBD_incr', 'frac_total_ui']]
     x = subset_bf2017.drop(['log_GJSI'], axis=1)
     y = subset_bf2017['log_GJSI']
@@ -217,7 +217,7 @@ def test(bf2017):
     
     return result
 
-test(bf2017)
+estim_incr_bf(bf2017)
 
 
 # DEL 1 SLUTT
@@ -262,7 +262,7 @@ bf2017['F2_D_PBD_decr'] = bf2017['F2_D_PBD_decr'].fillna(0)
 bf2017['F1_D_PBD_decr'] = bf2017['F1_D_PBD_decr'].fillna(0)
 
 # andre plt
-def test2(bf2017):
+def beta_incr_bf(bf2017):
     subset_bf2017 = bf2017.loc[bf2017['year'] >= 2012, ['log_GJSI', 'F3_D_PBD_decr', 'F2_D_PBD_decr', 'F1_D_PBD_decr', 'D_PBD_decr', 'L1_D_PBD_decr', 'L2_D_PBD_decr', 'L3_D_PBD_decr', 'L4_D_PBD_decr', 'frac_total_ui']]
     x = subset_bf2017.drop(['log_GJSI'], axis=1)
     y = subset_bf2017['log_GJSI']
@@ -300,7 +300,7 @@ def test2(bf2017):
 
     return result
 
-test2(bf2017)
+beta_incr_bf(bf2017)
 
 
 # ------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ test2(bf2017)
 # estimation with distributed-lags in levels
 # ------------------------------------------------------------------------------
 
-def test3(bf2017):
+def estim_decr_bf(bf2017):
   
     subset_bf2017 = bf2017.loc[bf2017['year'] >= 2012, ['log_GJSI', 'F2_D_PBD_decr', 'F1_D_PBD_decr', 'D_PBD_decr', 'L1_D_PBD_decr', 'L2_D_PBD_decr', 'L3_D_PBD_decr', 'L4_D_PBD_decr', 'frac_total_ui']]
     x = subset_bf2017.drop(['log_GJSI'], axis=1)
@@ -349,7 +349,7 @@ def test3(bf2017):
 
     return result
 
-test3(bf2017)
+estim_decr_bf(bf2017)
 
 # ------------------------------------------------------------------------------
 # Figure B.1, Panel B, left 
@@ -360,25 +360,19 @@ test3(bf2017)
 
 # # Create treatment adoption indic ator
 # bf2017['D_PBD_incr'] = np.where(np.diff(bf2017['PBD'], 1) >= 13, 1, 0)
-# 
-# # Create 3 leads
-# bf2017['F3_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(-3)
-# bf2017['F2_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(-2)
-# bf2017['F1_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(-1)
-# 
-# # Create 4 lags
-# bf2017['L1_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(1)
-# bf2017['L2_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(2)
-# bf2017['L3_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(3)
-# bf2017['L4_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(4)
-import pandas as pd
-import numpy as np
-import statsmodels.api as sm
-from linearmodels import PanelOLS
-import matplotlib.pyplot as plt
 
+# Create 3 leads
+bf2017['F3_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(-3)
+bf2017['F2_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(-2)
+bf2017['F1_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(-1)
 
-def test4(bf2017):
+# Create 4 lags
+bf2017['L1_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(1)
+bf2017['L2_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(2)
+bf2017['L3_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(3)
+bf2017['L4_D_PBD_incr'] = bf2017['D_PBD_incr'].shift(4)
+
+def estim_incr_dl_fe(bf2017):
     bf2017['yearmonth'] = pd.to_datetime(bf2017['yearmonth'])
     # print(bf2017.isnull().sum())
     # Set arbitrary value for the 4th lag of the treatment adoption indicator for 2006-05
@@ -439,7 +433,7 @@ def test4(bf2017):
     plt.grid(True)
     plt.show()
 
-test4(bf2017)
+estim_incr_dl_fe(bf2017)
 
 # ------------------------------------------------------------------------------
 # Figure B.2, left
@@ -448,6 +442,8 @@ test4(bf2017)
 # estimation with distributed-lags in levels
 # full sample
 # ------------------------------------------------------------------------------
+
+# not able to make this one work. 
 
 
 # Estimate dynamic panel model with fixed effects
@@ -489,32 +485,10 @@ plt.xlabel("Months relative to reform \n Observations: {}, states: {}, periods: 
                    estim_dl_fe_full.model.dataframe['yearmonth'].min(),
                    estim_dl_fe_full.model.dataframe['yearmonth'].max()))
 plt.ylabel("Effect on log search intensity")
-plt.ylim(-0.006, 0.002)
+plt.ylim(-0.1, 0.2)
 plt.yticks(np.arange(-0.006, 0.003, 0.002))
 plt.grid(True)
 plt.show()
-
-# Save plot to PDF
-plt.figure(figsize=(8, 4))
-plt.plot(beta_dl_fe_full['month_to_reform'], beta_dl_fe_full['coef'], color='darkblue')
-plt.scatter(beta_dl_fe_full['month_to_reform'], beta_dl_fe_full['coef'], color='darkblue')
-plt.errorbar(x=beta_dl_fe_full['month_to_reform'], y=beta_dl_fe_full['coef'],
-             yerr=1.96*beta_dl_fe_full['se'], color='darkblue', fmt='o')
-plt.axhline(y=0, color='black')
-plt.axvline(x=-0.5, linestyle='dashed')
-plt.xticks(np.arange(-3, 5))
-plt.xlabel("Months relative to reform \n Observations: {}, states: {}, periods: {} ({} - {})."
-           .format(estim_dl_fe_full.nobs,
-                   estim_dl_fe_full.model.dataframe['state'].nunique(),
-                   estim_dl_fe_full.model.dataframe['yearmonth'].nunique(),
-                   estim_dl_fe_full.model.dataframe['yearmonth'].min(),
-                   estim_dl_fe_full.model.dataframe['yearmonth'].max()))
-plt.ylabel("Effect on log search intensity")
-plt.ylim(-0.006, 0.002)
-plt.yticks(np.arange(-0.006, 0.003, 0.002))
-plt.grid(True)
-plt.savefig("./Fig_B2_left.pdf")
-plt.close()
 
 # ------------------------------------------------------------------------------
 # Figure B.2, right
@@ -524,6 +498,7 @@ plt.close()
 # estimation with distributed-lags in levels
 # crisis sample
 # ------------------------------------------------------------------------------
+# Was not able to get a good understanding of what I would need to do to get this one working
 
 # Describe treatment status
 print(bf2017['PBD'].describe())
@@ -532,6 +507,10 @@ print(bf2017['PBD'].describe())
 estim_dl_fe_crisis = PanelOLS.from_formula('np.log(GJSI) ~ lead(PBD, 2) + lead(PBD, 1) + PBD + lag(PBD, 1) + lag(PBD, 2) + lag(PBD, 3) + lag(PBD, 4) + frac_total_ui + C(yearmonth)',
                                            data=bf2017[bf2017['year'] <= 2011].dropna(subset=['GJSI', 'PBD', 'frac_total_ui', 'yearmonth']),
                                            effect='individual', entity_effects=True)
+# consistantly I am not able to get entity_effects = True to work as I want.
+# this results in the code not working. would be great to get some feedback on what
+# I need to do to get this working.
+
 summary_estim_dl_fe_crisis = estim_dl_fe_crisis.fit()
 print(summary_estim_dl_fe_crisis)
 
@@ -548,7 +527,8 @@ beta_dl_fe_crisis = pd.DataFrame({
   'se': [np.sqrt(np.cumsum(np.diag(vcov_dl_fe_crisis)[:2]))[::-1], 0,
          np.sqrt(np.cumsum(np.diag(vcov_dl_fe_crisis)[2:]))]
 })
-
+# as described earlier, the model does not work and will not plt as expected. 
+# if this was to be resolved the plot should work.
 # Plot beta coefficients
 plt.figure()
 plt.plot(beta_dl_fe_crisis['month_to_reform'], beta_dl_fe_crisis['coef'], color='darkblue')
@@ -578,7 +558,7 @@ plt.show()
 # estimation with distributed-lags in first differences and in levels
 # crisis sample
 # ------------------------------------------------------------------------------
-
+# a lot of the same problems as described above. 
 
 
 # Describe treatment status in levels
@@ -664,9 +644,8 @@ plt.ylabel("Effect on log search intensity")
 plt.ylim(-0.01, 0.002)
 plt.yticks(np.arange(-0.01, 0.003, 0.002))
 plt.grid(True)
-plt.savefig("./Fig_B4_left.pdf", format='pdf')
+plt.savefig("./Fig_B4_left.pdf", format='pdf') # I added a pdf saver to show it is possible, but wont work in jupyter. For this reason I have not in general implemented it
 plt.close()
-
 
 
 
